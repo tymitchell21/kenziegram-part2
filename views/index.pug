@@ -1,0 +1,48 @@
+html
+  head
+    title= "Kenziegram"
+    link(
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    )
+  body
+    h1= 'Welcome to Kenziegram!'
+        form(
+            id="form"
+            action="http://localhost:3000/uploads"
+            method="POST"
+            enctype="multipart/form-data"
+        )
+            div(
+                class="file-field input-field"
+            )
+                div(
+                    class="btn grey"
+                )
+                    span= 'File'
+                    input(
+                        id="image-input"
+                        name="myImage"
+                        type="file"
+                    )
+                div(
+                    class="file-path-wrapper"
+                )
+                    input(
+                        class="file-path validate"
+                        type="text"
+                    )
+
+            button(
+                type="submit"
+                class="btn"
+            )= "Submit"
+        br
+        br
+
+    each photo in photos
+        a(href=`http://localhost:3000/photos/${photo}`)
+            img(
+                src=`./uploads/${photo}`
+                class="responsive-img"
+            )

@@ -1,0 +1,14 @@
+html
+  head
+    title= "Kenziegram"
+    link(
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    )
+  body
+    a(
+        href=`http://localhost:3000/photos/${photo}`
+    )= 'Back'
+    h1= 'Comment Submitted'
+    p= username
+    p= comment

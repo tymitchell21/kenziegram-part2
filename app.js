@@ -1,8 +1,10 @@
 const express = require('express')
 const fs = require('fs')
+const pug = require('pug')
 const multer = require('multer')
 const path = require('path')
 const cors = require('cors')
+const comments = require('./public/comments')
 
 const storage = multer.diskStorage({
     destination: './public/uploads/',
@@ -21,9 +23,7 @@ const upload = multer({
 
 function checkFileType(file, cb) {
     const filetypes = /jpeg|jpg|png|gif/
-
     const extname = filetypes.test(path.extname(file.originalname).toLowerCase())
-
     const mimetype = filetypes.test(file.mimetype)
 
     if (mimetype && extname) {
@@ -35,30 +35,66 @@ function checkFileType(file, cb) {
 
 const app = express()
 
-app.use(express.static('./public'))
+// app.set('view engine', 'ejs')
+app.set('view engine', 'pug')
 app.use(cors())
+app.use(express.static('./public'))
 
 app.get('/', (req, res) => {
     fs.readdir('./public/uploads', function(err, items) {
-        if (items) res.send(items)
-        else res.send()
+        items.reverse()
+        res.render('index', {
+            photos: items
+        })
+    })
+})
+
+app.get('/photos/:photoName', (req, res) => {
+    console.log(comments[req.params.photoName])
+    res.render('photo', {
+        photo: req.params.photoName,
+        comments: comments[req.params.photoName]
     })
 })
 
 app.post('/uploads', (req, res) => {
     upload(req, res, (err) => {
-        let response = '<a style="display: flex; color: black; justify-content: center; align-items: center; width: 100px; height: 50px; background-color: lightgrey; border: 1px solid black; border-radius: 5px; text-decoration: none;" href="http://localhost:5500/index.html">Back</a>\n'
         if(err) {
-            response += `<h1>${err}</h1>\n`
+            res.render('photo', {
+                photo: err
+            })
         } else {
             if(req.file === undefined) {
-                response += `<h1>No Photo Selected</h1>\n`
+                res.render('photo', {
+                    photo: 'Photos only!'
+                })
             } else {
-                response += `<h1>Photo Uploaded</h1>`
-                response += `<img style="width: 400px;" src="./uploads/${req.file.filename}">`
+                res.render('photo', {
+                    photo: req.file.filename
+                })
             }
         }
-        res.send(response)
+    })
+})
+
+app.use(express.urlencoded())
+
+app.post('/comments', (req, res) => {
+    if (!comments[req.body.photo]) {
+        comments[req.body.photo] = [{
+            username: req.body.username,
+            comment: req.body.comment
+        }]
+    } else {
+        comments[req.body.photo].push({
+            username: req.body.username,
+            comment: req.body.comment
+        })
+    }
+    res.render('commentSubmit', {
+        photo: req.body.photo,
+        username: req.body.username,
+        comment: req.body.comment
     })
 })
 

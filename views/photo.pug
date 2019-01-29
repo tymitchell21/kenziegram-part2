@@ -1,0 +1,54 @@
+html
+  head
+    title= "Kenziegram"
+    link(
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    )
+  body
+    a(
+        href='http://localhost:3000'
+    )= 'Back'
+    h1= photo
+    img(
+        src=`../uploads/${photo}`
+        class='responsive-img'
+    )
+    br
+    div(
+        style="display: inline-block;"
+    )
+        if comments
+            each comment in comments
+                p(
+                    class="card-panel teal lighten-2 flow-text"
+                    style="margin-right: 10px;"
+                )= `${comment.username}:`
+                p(
+                    class="card-panel lighten-2 flow-text"
+                )= comment.comment
+                br
+    form(
+        id="form"
+        action="/comments"
+        method="POST"
+    )
+        input(
+            style="display: none;"
+            name="photo"
+            value= photo
+        )
+        label= "Username: "
+        input(
+            type="text"
+            name="username"
+        )
+        label= "Comment: "
+        input(
+            type="text"
+            name="comment"
+        )
+        input(
+            type="submit"
+            class="btn grey"
+        )

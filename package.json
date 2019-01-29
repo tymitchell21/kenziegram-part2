@@ -1,19 +1,27 @@
 {
-  "name": "kenziegram-part1",
+  "name": "kenziegram-part2",
   "version": "1.0.0",
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js"
+    "start": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+ssh://git@gitlab.com/tymitchell2100/kenziegram-part2.git"
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
+  "bugs": {
+    "url": "https://gitlab.com/tymitchell2100/kenziegram-part2/issues"
+  },
+  "homepage": "https://gitlab.com/tymitchell2100/kenziegram-part2#README",
   "dependencies": {
     "cors": "^2.8.5",
     "ejs": "^2.6.1",
     "express": "^4.16.4",
-    "fs": "0.0.1-security",
-    "multer": "^1.4.1"
+    "multer": "^1.4.1",
+    "pug": "^2.0.3"
   }
 }
