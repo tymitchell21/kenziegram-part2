@@ -4,7 +4,6 @@ const pug = require('pug')
 const multer = require('multer')
 const path = require('path')
 const cors = require('cors')
-const comments = require('./public/comments')
 
 const storage = multer.diskStorage({
     destination: './public/uploads/',
@@ -49,9 +48,15 @@ app.get('/', (req, res) => {
 })
 
 app.get('/photos/:photoName', (req, res) => {
-    res.render('photo', {
-        photo: req.params.photoName,
-        comments: comments[req.params.photoName]
+    fs.readFile('public/comments.json', 'utf8', function(err, data) {
+        if (err) throw err
+
+        const comments = JSON.parse(data)
+
+        res.render('photo', {
+            photo: req.params.photoName,
+            comments: comments[req.params.photoName]
+        })
     })
 })
 
@@ -78,17 +83,30 @@ app.post('/uploads', (req, res) => {
 app.use(express.urlencoded())
 
 app.post('/comments', (req, res) => {
-    if (!comments[req.body.photo]) {
-        comments[req.body.photo] = [{
-            username: req.body.username,
-            comment: req.body.comment
-        }]
-    } else {
-        comments[req.body.photo].push({
-            username: req.body.username,
-            comment: req.body.comment
+    fs.readFile('public/comments.json', 'utf8', function(err, data) {
+        if (err) throw err
+
+        const comments = JSON.parse(data)
+
+        if (!comments[req.body.photo]) {
+            comments[req.body.photo] = [{
+                username: req.body.username,
+                comment: req.body.comment
+            }]
+        } else {
+            comments[req.body.photo].push({
+                username: req.body.username,
+                comment: req.body.comment
+            })
+        }
+
+        fs.writeFile('public/comments.json', JSON.stringify(comments), 'utf8', (err) => {
+            if(err) throw err;
+            console.log('the file has been saved!')
         })
-    }
+    
+    })
+
     res.render('commentSubmit', {
         photo: req.body.photo,
         username: req.body.username,
