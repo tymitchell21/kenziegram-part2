@@ -35,7 +35,6 @@ function checkFileType(file, cb) {
 
 const app = express()
 
-// app.set('view engine', 'ejs')
 app.set('view engine', 'pug')
 app.use(cors())
 app.use(express.static('./public'))
@@ -50,7 +49,6 @@ app.get('/', (req, res) => {
 })
 
 app.get('/photos/:photoName', (req, res) => {
-    console.log(comments[req.params.photoName])
     res.render('photo', {
         photo: req.params.photoName,
         comments: comments[req.params.photoName]

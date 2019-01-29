@@ -5,10 +5,24 @@ html
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
     )
-  body
+  body(
+      class="cyan lighten-4"
+  )
     a(
         href=`http://localhost:3000/photos/${photo}`
+        class="btn grey"
     )= 'Back'
-    h1= 'Comment Submitted'
-    p= username
-    p= comment
+    h1(
+        class="card-panel flow-text"
+    )= 'Comment Submitted'
+    div(
+        style="display: inline-block;"
+    )
+        p(
+            class="card-panel lime lighten-3 flow-text"
+            style="display: inline-block;"
+        )= `${username}: `
+        p(
+            class="card-panel lighten-2 flow-text"
+            style="padding-left: 30px; display: inline-block;"
+        )= comment

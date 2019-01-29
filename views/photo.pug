@@ -5,11 +5,16 @@ html
         rel="stylesheet"
         href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
     )
-  body
+  body(
+      class="cyan lighten-4"
+  )
     a(
         href='http://localhost:3000'
+        class="btn grey"
     )= 'Back'
-    h1= photo
+    h1(
+        class="card-panel flow-text"
+    )= photo
     img(
         src=`../uploads/${photo}`
         class='responsive-img'
@@ -21,11 +26,12 @@ html
         if comments
             each comment in comments
                 p(
-                    class="card-panel teal lighten-2 flow-text"
-                    style="margin-right: 10px;"
+                    class="card-panel lime lighten-3 flow-text"
+                    style="display: inline-block;"
                 )= `${comment.username}:`
                 p(
                     class="card-panel lighten-2 flow-text"
+                    style="padding-left: 30px; display: inline-block;"
                 )= comment.comment
                 br
     form(
@@ -38,10 +44,16 @@ html
             name="photo"
             value= photo
         )
+        icon(
+            class="person material-icons prefix"
+        )
         label= "Username: "
         input(
             type="text"
             name="username"
+        )
+        icon(
+            class="message material-icons prefix"
         )
         label= "Comment: "
         input(
