@@ -9,10 +9,12 @@ html
       class="cyan lighten-4"
   )
     a(
-        href='http://localhost:3000'
+        style="font-size:3vw;"
+        href='../'
         class="btn grey"
     )= 'Back'
     h1(
+        style="font-size:5vw;"
         class="card-panel flow-text"
     )= photo
     img(
@@ -27,11 +29,11 @@ html
             each comment in comments
                 p(
                     class="card-panel lime lighten-3 flow-text"
-                    style="display: inline-block;"
+                    style="display: inline-block; font-size:5vw;"
                 )= `${comment.username}:`
                 p(
                     class="card-panel lighten-2 flow-text"
-                    style="padding-left: 30px; display: inline-block;"
+                    style="padding-left: 30px; display: inline-block; font-size:5vw;"
                 )= comment.comment
                 br
     form(
@@ -47,20 +49,27 @@ html
         icon(
             class="person material-icons prefix"
         )
-        label= "Username: "
+        label(
+            style="font-size:5vw;"
+        )= "Username: "
         input(
+            style="font-size:5vw;"
             type="text"
             name="username"
         )
         icon(
             class="message material-icons prefix"
         )
-        label= "Comment: "
+        label(
+            style="font-size:5vw;"
+        )= "Comment: "
         input(
+            style="font-size:5vw;"
             type="text"
             name="comment"
         )
         input(
+            style="font-size:3vw;"
             type="submit"
             class="btn grey"
         )

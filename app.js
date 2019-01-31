@@ -14,7 +14,7 @@ const storage = multer.diskStorage({
 
 const upload = multer({
     storage: storage,
-    limits:{fileSize: 1000000},
+    limits:{fileSize: 10000000},
     fileFilter: function(req, file, cb) {
         checkFileType(file, cb)
     }
@@ -56,6 +56,30 @@ app.get('/photos/:photoName', (req, res) => {
         res.render('photo', {
             photo: req.params.photoName,
             comments: comments[req.params.photoName]
+        })
+    })
+})
+
+app.use(express.json())
+
+app.post('/latest', (req, res) => {
+    const after = req.body.after
+
+    fs.readdir('./public/uploads', function(err, items) {
+        let timestamp = 0
+        let newImages = []
+        items.map(photo => {
+            const modified = fs.statSync(`./public/uploads/${photo}`).mtimeMs
+            
+            if (parseInt(modified) > parseInt(timestamp)) timestamp = modified
+            if (parseInt(modified) > parseInt(after)) {
+                newImages.push(photo)
+            }
+        })
+
+        res.send({
+            images: newImages,
+            timestamp: timestamp
         })
     })
 })
@@ -104,13 +128,11 @@ app.post('/comments', (req, res) => {
             if(err) throw err;
             console.log('the file has been saved!')
         })
-    
-    })
 
-    res.render('commentSubmit', {
-        photo: req.body.photo,
-        username: req.body.username,
-        comment: req.body.comment
+        res.render('photo', {
+            photo: req.body.photo,
+            comments: comments[req.body.photo]
+        })
     })
 })
 

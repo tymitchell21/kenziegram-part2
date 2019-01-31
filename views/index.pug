@@ -8,42 +8,52 @@ html
   body(
       class="cyan lighten-4"
   )
-    h1= 'Welcome to Kenziegram!'
-        form(
-            id="form"
-            action="http://localhost:3000/uploads"
-            method="POST"
-            enctype="multipart/form-data"
+    h1(
+        style="font-size:7vw;"
+        class="card-panel flow-text"
+    )= 'Welcome to Kenziegram!'
+    form(
+        id="form"
+        action="/uploads"
+        method="POST"
+        enctype="multipart/form-data"
+    )
+        div(
+            class="file-field input-field"
         )
             div(
-                class="file-field input-field"
+                class="btn grey"
             )
-                div(
-                    class="btn grey"
+                span(
+                    style="font-size:3vw;"
+                )= 'Upload Photo'
+                input(
+                    id="image-input"
+                    name="myImage"
+                    type="file"
                 )
-                    span= 'Photo'
-                    input(
-                        id="image-input"
-                        name="myImage"
-                        type="file"
-                    )
-                div(
-                    class="file-path-wrapper"
-                )
-                    input(
-                        class="file-path validate"
-                        type="text"
-                    )
-
-            button(
-                type="submit"
-                class="btn"
-            )= "Submit"
-
-    each photo in photos
-        a(href=`http://localhost:3000/photos/${photo}`)
-            img(
-                src=`./uploads/${photo}`
-                class="responsive-img"
-                style="margin-bottom: 20px; border: 5px solid black;"
+            div(
+                class="file-path-wrapper"
             )
+                input(
+                    class="file-path validate"
+                    type="text"
+                )
+
+        button(
+            type="submit"
+            class="btn"
+        )= "Submit"
+    div(
+        id="image-container"
+    )
+        each photo in photos
+            a(href=`./photos/${photo}`)
+                img(
+                    src=`./uploads/${photo}`
+                    class="responsive-img"
+                    style="margin-bottom: 20px; border: 5px solid black;"
+                )
+    script
+        include ../src/index.js
+  
