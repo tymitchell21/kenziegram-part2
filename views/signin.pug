@@ -1,0 +1,45 @@
+html
+  head
+    title= "Kenziegram"
+    link(
+        rel="stylesheet"
+        href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css"
+    )
+  body(
+      class="cyan lighten-4"
+  )
+    h1(
+        style="font-size:7vw;"
+        class="card-panel flow-text"
+    )= type
+    form(
+        id="form"
+        action="/uploads"
+        method="POST"
+        enctype="multipart/form-data"
+    )
+        div(
+            class="file-field input-field"
+        )
+            span(
+                style="font-size:2vw;"
+                class="btn grey"
+            )= 'username: '
+            input(
+                id="username-input"
+                name="username"
+                type="text"
+            )
+            span(
+                style="font-size:2vw;"
+                class="btn grey"
+            )= 'password: '
+            input(
+                id="username-input"
+                name="password"
+                type="text"
+            )
+        button(
+            type="submit"
+            class="btn"
+        )= "Submit"

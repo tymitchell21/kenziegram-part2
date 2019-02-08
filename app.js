@@ -64,7 +64,7 @@ app.use(express.json())
 
 app.post('/latest', (req, res) => {
     const after = req.body.after
-
+    
     fs.readdir('./public/uploads', function(err, items) {
         let timestamp = 0
         let newImages = []
@@ -134,6 +134,14 @@ app.post('/comments', (req, res) => {
             comments: comments[req.body.photo]
         })
     })
+})
+
+app.get('/signin' , (req, res) => {
+    res.render('signin', {type: 'Sign In!'})
+})
+
+app.get('/register' , (req, res) => {
+    res.render('signin', {type: 'Register here!'})
 })
 
 app.listen(3000, () => {
