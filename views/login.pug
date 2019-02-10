@@ -8,15 +8,19 @@ html
   body(
       class="cyan lighten-4"
   )
+    a(
+        style="font-size:3vw;"
+        href='../'
+        class="btn grey"
+    )= 'Back'
     h1(
         style="font-size:7vw;"
         class="card-panel flow-text"
     )= type
     form(
         id="form"
-        action="/uploads"
+        action=`${call}`
         method="POST"
-        enctype="multipart/form-data"
     )
         div(
             class="file-field input-field"
@@ -37,7 +41,7 @@ html
             input(
                 id="username-input"
                 name="password"
-                type="text"
+                type="password"
             )
         button(
             type="submit"

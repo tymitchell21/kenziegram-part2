@@ -4,6 +4,9 @@ const pug = require('pug')
 const multer = require('multer')
 const path = require('path')
 const cors = require('cors')
+const cookieParser = require('cookie-parser')
+const morgan = require('morgan')
+const session = require('express-session')
 
 const storage = multer.diskStorage({
     destination: './public/uploads/',
@@ -38,12 +41,29 @@ app.set('view engine', 'pug')
 app.use(cors())
 app.use(express.static('./public'))
 
+app.use(morgan('dev'))
+app.use(cookieParser())
+app.use(session({
+    secret: 'anystringoftext',
+    saveUninitialized: true,
+    resave: true
+}))
+
 app.get('/', (req, res) => {
     fs.readdir('./public/uploads', function(err, items) {
         items.reverse()
-        res.render('index', {
-            photos: items
-        })
+
+        if(req.session.username) {
+            res.render('index', {
+                photos: items,
+                loggedIn: true
+            })
+        } else {
+            res.render('index', {
+                photos: items,
+                loggedIn: false
+            })
+        }
     })
 })
 
@@ -52,10 +72,11 @@ app.get('/photos/:photoName', (req, res) => {
         if (err) throw err
 
         const comments = JSON.parse(data)
-
+        
         res.render('photo', {
             photo: req.params.photoName,
-            comments: comments[req.params.photoName]
+            comments: comments[req.params.photoName],
+            user: req.session.username
         })
     })
 })
@@ -114,20 +135,22 @@ app.post('/comments', (req, res) => {
 
         if (!comments[req.body.photo]) {
             comments[req.body.photo] = [{
-                username: req.body.username,
+                username: req.session.username,
                 comment: req.body.comment
             }]
         } else {
             comments[req.body.photo].push({
-                username: req.body.username,
+                username: req.session.username,
                 comment: req.body.comment
             })
         }
 
         fs.writeFile('public/comments.json', JSON.stringify(comments), 'utf8', (err) => {
-            if(err) throw err;
+            if(err) throw err
             console.log('the file has been saved!')
         })
+
+        console.log(req.session.username)
 
         res.render('photo', {
             photo: req.body.photo,
@@ -136,12 +159,78 @@ app.post('/comments', (req, res) => {
     })
 })
 
-app.get('/signin' , (req, res) => {
-    res.render('signin', {type: 'Sign In!'})
+app.get('/login', (req, res) => {
+    res.render('login', {type: 'Sign in!', call: '/login'})
+})
+
+app.get('/logout', (req, res) => {
+    req.session.username = undefined
+    res.render('index', {
+        login: false
+    })
 })
 
 app.get('/register' , (req, res) => {
-    res.render('signin', {type: 'Register here!'})
+    res.render('login', {type: 'Register here!', call: '/register'})
+})
+
+app.use(express.urlencoded())
+
+app.post('/login' , (req, res) => {
+    fs.readFile('public/users.json', 'utf8', function(err, data) {
+        if (err) throw err
+
+        const users = JSON.parse(data)
+
+        if (!users[req.body.username]) {
+            res.render('login', {type: 'Username not registered.  Try again.', call: '/login'})
+        } else {
+            if(users[req.body.username].password === req.body.password) {
+                req.session.username = req.body.username
+                fs.readdir('./public/uploads', function(err, items) {
+                    items.reverse()
+                    res.render('index', {
+                        photos: items,
+                        loggedIn: true
+                    })
+                })
+            } else {
+                res.render('login', {type: 'Incorrect password.  Try again.', call: '/login'})
+            }
+        }
+    })
+})
+
+app.post('/register' , (req, res) => {
+    fs.readFile('public/users.json', 'utf8', function(err, data) {
+        if (err) throw err
+
+        const users = JSON.parse(data)
+
+        if (!users[req.body.username]) {
+            req.session.username = req.body.username
+
+            users[req.body.username] = {
+                username: req.body.username,
+                password: req.body.password
+            }
+
+            fs.writeFile('public/users.json', JSON.stringify(users), 'utf8', (err) => {
+                if(err) throw err;
+                console.log('the file has been saved!')
+            })
+
+            fs.readdir('./public/uploads', function(err, items) {
+                items.reverse()
+                res.render('index', {
+                    photos: items,
+                    loggedIn: true
+                })
+            })
+        } else {
+            res.render('login', {type: 'Username taken, please try a different one.', call: '/register'})
+        }
+    })
 })
 
 app.listen(3000, () => {

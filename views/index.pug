@@ -7,63 +7,71 @@ html
     )
   body(
       class="cyan lighten-4"
-  )
-    a(
-            id="sign"
-            class="btn"
-            href="/signin"
-        )= "Sign In" 
-    a(
-            id="register"
-            class="btn"
-            href="/register"
-        )= "Register"
+  ) 
+    if loggedIn
+        a(
+                id="sign"
+                class="btn"
+                href="/logout"
+            )= "Log Out"
+    else
+        a(
+                id="sign"
+                class="btn"
+                href="/login"
+            )= "Sign In" 
+        a(
+                id="register"
+                class="btn"
+                href="/register"
+            )= "Register"
     h1(
         style="font-size:7vw;"
         class="card-panel flow-text"
     )= 'Welcome to Kenziegram!'
-    form(
-        id="form"
-        action="/uploads"
-        method="POST"
-        enctype="multipart/form-data"
-    )
-        div(
-            class="file-field input-field"
+    if loggedIn
+        form(
+            id="form"
+            action="/uploads"
+            method="POST"
+            enctype="multipart/form-data"
         )
             div(
-                class="btn grey"
+                class="file-field input-field"
             )
-                span(
-                    style="font-size:3vw;"
-                )= 'Upload Photo'
-                input(
-                    id="image-input"
-                    name="myImage"
-                    type="file"
+                div(
+                    class="btn grey"
                 )
-            div(
-                class="file-path-wrapper"
-            )
-                input(
-                    class="file-path validate"
-                    type="text"
+                    span(
+                        style="font-size:3vw;"
+                    )= 'Upload Photo'
+                    input(
+                        id="image-input"
+                        name="myImage"
+                        type="file"
+                    )
+                div(
+                    class="file-path-wrapper"
                 )
+                    input(
+                        class="file-path validate"
+                        type="text"
+                    )
 
-        button(
-            type="submit"
-            class="btn"
-        )= "Submit"
-    div(
-        id="image-container"
-    )
-        each photo in photos
-            a(href=`./photos/${photo}`)
-                img(
-                    src=`./uploads/${photo}`
-                    class="responsive-img"
-                    style="margin-bottom: 20px; border: 5px solid black;"
-                )
+            button(
+                type="submit"
+                class="btn"
+            )= "Submit"
+        div(
+            id="image-container"
+        )
+            each photo in photos
+                a(href=`./photos/${photo}`)
+                    img(
+                        src=`./uploads/${photo}`
+                        class="responsive-img"
+                        style="margin-bottom: 20px; border: 5px solid black;"
+                    )
     script
         include ../src/index.js
   
