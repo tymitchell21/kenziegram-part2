@@ -5,8 +5,7 @@ const multer = require('multer')
 const path = require('path')
 const cors = require('cors')
 const cookieParser = require('cookie-parser')
-const morgan = require('morgan')
-const session = require('express-session')
+const uuidv1 = require('uuid/v1')
 
 const storage = multer.diskStorage({
     destination: './public/uploads/',
@@ -41,29 +40,31 @@ app.set('view engine', 'pug')
 app.use(cors())
 app.use(express.static('./public'))
 
-app.use(morgan('dev'))
 app.use(cookieParser())
-app.use(session({
-    secret: 'anystringoftext',
-    saveUninitialized: true,
-    resave: true
-}))
 
 app.get('/', (req, res) => {
     fs.readdir('./public/uploads', function(err, items) {
         items.reverse()
 
-        if(req.session.username) {
-            res.render('index', {
-                photos: items,
-                loggedIn: true
-            })
-        } else {
-            res.render('index', {
-                photos: items,
-                loggedIn: false
-            })
-        }
+        fs.readFile('public/sessions.json', 'utf8', function(err, data) {
+
+            const sessions = JSON.parse(data)
+
+            const user = sessions[req.cookies.sessionId]
+
+            if(user) {
+                res.render('index', {
+                    photos: items,
+                    loggedIn: true
+                })
+            } else {
+                res.render('index', {
+                    photos: items,
+                    loggedIn: false
+                })
+            }
+        })
+
     })
 })
 
@@ -72,12 +73,20 @@ app.get('/photos/:photoName', (req, res) => {
         if (err) throw err
 
         const comments = JSON.parse(data)
-        
-        res.render('photo', {
-            photo: req.params.photoName,
-            comments: comments[req.params.photoName],
-            user: req.session.username
+
+        fs.readFile('public/sessions.json', 'utf8', function(err, data) {
+
+            const sessions = JSON.parse(data)
+
+            const user = sessions[req.cookies.sessionId]
+
+            res.render('photo', {
+                photo: req.params.photoName,
+                comments: comments[req.params.photoName],
+                user: user
+            })
         })
+        
     })
 })
 
@@ -133,28 +142,31 @@ app.post('/comments', (req, res) => {
 
         const comments = JSON.parse(data)
 
-        if (!comments[req.body.photo]) {
-            comments[req.body.photo] = [{
-                username: req.session.username,
-                comment: req.body.comment
-            }]
-        } else {
-            comments[req.body.photo].push({
-                username: req.session.username,
-                comment: req.body.comment
+        fs.readFile('public/sessions.json', 'utf8', function(err, data) {
+
+            const sessions = JSON.parse(data)
+
+            if (!comments[req.body.photo]) {
+                comments[req.body.photo] = [{
+                    username: sessions[req.cookies.sessionId],
+                    comment: req.body.comment
+                }]
+            } else {
+                comments[req.body.photo].push({
+                    username: sessions[req.cookies.sessionId],
+                    comment: req.body.comment
+                })
+            }
+
+            fs.writeFile('public/comments.json', JSON.stringify(comments), 'utf8', (err) => {
+                if(err) throw err
+                console.log('the file has been saved!')
             })
-        }
-
-        fs.writeFile('public/comments.json', JSON.stringify(comments), 'utf8', (err) => {
-            if(err) throw err
-            console.log('the file has been saved!')
-        })
-
-        console.log(req.session.username)
-
-        res.render('photo', {
-            photo: req.body.photo,
-            comments: comments[req.body.photo]
+    
+            res.render('photo', {
+                photo: req.body.photo,
+                comments: comments[req.body.photo]
+            })
         })
     })
 })
@@ -164,7 +176,21 @@ app.get('/login', (req, res) => {
 })
 
 app.get('/logout', (req, res) => {
-    req.session.username = undefined
+    
+    res.clearCookie('sessionId')
+
+    fs.readFile('public/sessions.json', 'utf8', function(err, data) {
+
+        const sessions = JSON.parse(data)
+
+        delete sessions[req.cookies.sessionId]
+
+        fs.writeFile('public/sessions.json', JSON.stringify(sessions), 'utf8', (err) => {
+            if(err) throw err
+            console.log('the file has been saved!')
+        })
+    })
+
     res.render('index', {
         login: false
     })
@@ -186,7 +212,22 @@ app.post('/login' , (req, res) => {
             res.render('login', {type: 'Username not registered.  Try again.', call: '/login'})
         } else {
             if(users[req.body.username].password === req.body.password) {
-                req.session.username = req.body.username
+
+                const uuid = uuidv1()
+                res.cookie("sessionId", uuid)
+
+                fs.readFile('public/sessions.json', 'utf8', function(err, data) {
+
+                    const sessions = JSON.parse(data)
+
+                    sessions[uuid] = req.body.username
+
+                    fs.writeFile('public/sessions.json', JSON.stringify(sessions), 'utf8', (err) => {
+                        if(err) throw err
+                        console.log('the file has been saved!')
+                    })
+                })
+
                 fs.readdir('./public/uploads', function(err, items) {
                     items.reverse()
                     res.render('index', {
@@ -208,12 +249,26 @@ app.post('/register' , (req, res) => {
         const users = JSON.parse(data)
 
         if (!users[req.body.username]) {
-            req.session.username = req.body.username
 
             users[req.body.username] = {
                 username: req.body.username,
                 password: req.body.password
             }
+
+            const uuid = uuidv1()
+            res.cookie("sessionId", uuid)
+
+            fs.readFile('public/sessions.json', 'utf8', function(err, data) {
+
+                const sessions = JSON.parse(data)
+
+                sessions[uuid] = req.body.username
+
+                fs.writeFile('public/sessions.json', JSON.stringify(sessions), 'utf8', (err) => {
+                    if(err) throw err
+                    console.log('the file has been saved!')
+                })
+            })
 
             fs.writeFile('public/users.json', JSON.stringify(users), 'utf8', (err) => {
                 if(err) throw err;

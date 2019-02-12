@@ -28,6 +28,8 @@ const getLatestImages = () => {
                     aTag.appendChild(img)
 
                     imageContainer.prepend(aTag)
+
+                    
                 })
             })
             .catch(err => {
