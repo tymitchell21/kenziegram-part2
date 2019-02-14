@@ -1,6 +1,5 @@
 const express = require('express')
 const fs = require('fs')
-const pug = require('pug')
 const multer = require('multer')
 const path = require('path')
 const cors = require('cors')
@@ -115,21 +114,33 @@ app.post('/latest', (req, res) => {
 })
 
 app.post('/uploads', (req, res) => {
-    upload(req, res, (err) => {
-        if(err) {
-            res.render('photo', {
-                photo: err
+    fs.readFile('public/sessions.json', 'utf8', function(err, data) {
+
+        const sessions = JSON.parse(data)
+
+        const user = sessions[req.cookies.sessionId]
+
+        if(user) {
+            upload(req, res, (err) => {
+                if(err) {
+                    res.render('photo', {
+                        photo: err
+                    })
+                } else {
+                    if(req.file === undefined) {
+                        res.render('photo', {
+                            photo: 'Photos only!'
+                        })
+                    } else {
+                        res.render('photo', {
+                            photo: req.file.filename
+                        })
+                    }
+                }
             })
         } else {
-            if(req.file === undefined) {
-                res.render('photo', {
-                    photo: 'Photos only!'
-                })
-            } else {
-                res.render('photo', {
-                    photo: req.file.filename
-                })
-            }
+            res.status(403)
+            res.send()
         }
     })
 })
@@ -180,7 +191,6 @@ app.get('/logout', (req, res) => {
     res.clearCookie('sessionId')
 
     fs.readFile('public/sessions.json', 'utf8', function(err, data) {
-
         const sessions = JSON.parse(data)
 
         delete sessions[req.cookies.sessionId]
@@ -259,7 +269,6 @@ app.post('/register' , (req, res) => {
             res.cookie("sessionId", uuid)
 
             fs.readFile('public/sessions.json', 'utf8', function(err, data) {
-
                 const sessions = JSON.parse(data)
 
                 sessions[uuid] = req.body.username
