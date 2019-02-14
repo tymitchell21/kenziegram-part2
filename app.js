@@ -147,7 +147,7 @@ app.post('/uploads', (req, res) => {
 
 app.use(express.urlencoded())
 
-app.post('/comments', (req, res) => {
+app.post('/comments/:photoName', (req, res) => {
     fs.readFile('public/comments.json', 'utf8', function(err, data) {
         if (err) throw err
 
@@ -157,13 +157,13 @@ app.post('/comments', (req, res) => {
 
             const sessions = JSON.parse(data)
 
-            if (!comments[req.body.photo]) {
-                comments[req.body.photo] = [{
+            if (!comments[req.params.photoName]) {
+                comments[req.params.photoName] = [{
                     username: sessions[req.cookies.sessionId],
                     comment: req.body.comment
                 }]
             } else {
-                comments[req.body.photo].push({
+                comments[req.params.photoName].push({
                     username: sessions[req.cookies.sessionId],
                     comment: req.body.comment
                 })
@@ -175,8 +175,8 @@ app.post('/comments', (req, res) => {
             })
     
             res.render('photo', {
-                photo: req.body.photo,
-                comments: comments[req.body.photo]
+                photo: req.params.photoName,
+                comments: comments[req.params.photoName]
             })
         })
     })
